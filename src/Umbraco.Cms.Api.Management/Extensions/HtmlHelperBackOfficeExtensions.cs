@@ -43,16 +43,61 @@ public static class HtmlHelperBackOfficeExtensions
 
         var sb = new StringBuilder();
         sb.AppendLine($"<script type=\"importmap\"{nonceAttribute}>");
-        sb.AppendLine(jsonSerializer.Serialize(packageImports));
+        sb.AppendLine(jsonSerializer.Serialize(ResolveBackOfficeImports(packageImports, backOfficePathGenerator)));
         sb.AppendLine("</script>");
 
         // Inject the BackOffice cache buster into the import string to handle BackOffice assets
         var importmapScript = sb.ToString()
-            .Replace(backOfficePathGenerator.BackOfficeVirtualDirectory, backOfficePathGenerator.BackOfficeAssetsPath)
-
             // TODO: Remove this when CacheBusterToken is gone. Scheduled for removal in Umbraco 20.
             .Replace(Constants.Web.CacheBusterToken, backOfficePathGenerator.BackOfficeCacheBustHash);
 
         return html.Raw(importmapScript);
+    }
+
+    internal static PackageManifestImportmap ResolveBackOfficeImports(PackageManifestImportmap map, IBackOfficePathGenerator paths)
+    {
+        const string packagedPath = "/" + Constants.System.UmbracoPathSegment + "/backoffice/";
+        var publicPath = paths.BackOfficeVirtualDirectory + "/";
+        var assetsPath = paths.BackOfficeAssetsPath + "/";
+
+        string Resolve(string url)
+        {
+            if (url.StartsWith(assetsPath, StringComparison.Ordinal))
+            {
+                return url;
+            }
+
+            if (url.StartsWith(packagedPath, StringComparison.Ordinal))
+            {
+                return assetsPath + url[packagedPath.Length..];
+            }
+
+            return url.StartsWith(publicPath, StringComparison.Ordinal)
+                ? assetsPath + url[publicPath.Length..]
+                : url;
+        }
+
+        Dictionary<string, string> ResolveMappings(Dictionary<string, string> mappings)
+        {
+            var result = new Dictionary<string, string>();
+            foreach (var (key, value) in mappings)
+            {
+                result[Resolve(key)] = Resolve(value);
+            }
+
+            return result;
+        }
+
+        var result = new PackageManifestImportmap { Imports = ResolveMappings(map.Imports) };
+        if (map.Scopes is not null)
+        {
+            result.Scopes = new Dictionary<string, Dictionary<string, string>>();
+            foreach (var (scope, mappings) in map.Scopes)
+            {
+                result.Scopes[Resolve(scope)] = ResolveMappings(mappings);
+            }
+        }
+
+        return result;
     }
 }

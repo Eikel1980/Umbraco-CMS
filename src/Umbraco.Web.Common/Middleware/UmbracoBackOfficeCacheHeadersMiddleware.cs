@@ -58,9 +58,7 @@ public class UmbracoBackOfficeCacheHeadersMiddleware : IMiddleware
         IBackOfficePathGenerator backOfficePathGenerator,
         IHostingEnvironment hostingEnvironment)
     {
-        // Normalise to a single leading slash, no trailing slash — defensive against any
-        // future change in IBackOfficePathGenerator's output shape.
-        _prefix = "/" + backOfficePathGenerator.BackOfficeAssetsPath.TrimStart('/').TrimEnd('/');
+        _prefix = "/" + Umbraco.Cms.Core.Constants.System.UmbracoPathSegment + "/backoffice/" + backOfficePathGenerator.BackOfficeCacheBustHash;
         _headerValue = hostingEnvironment.IsDebugMode
             ? "no-cache"
             : "public, max-age=31536000, immutable";

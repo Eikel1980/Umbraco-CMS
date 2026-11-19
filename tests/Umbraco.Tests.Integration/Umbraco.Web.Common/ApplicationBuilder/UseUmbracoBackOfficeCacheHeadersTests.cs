@@ -173,7 +173,7 @@ public class UseUmbracoBackOfficeCacheHeadersTests
                     .ConfigureServices(services =>
                     {
                         services.AddSingleton(Mock.Of<IBackOfficePathGenerator>(g =>
-                            g.BackOfficeAssetsPath == Prefix));
+                            g.BackOfficeCacheBustHash == "hash123"));
                         services.AddSingleton(Mock.Of<IHostingEnvironment>(e =>
                             e.IsDebugMode == isDebug));
                         services.AddSingleton<UmbracoBackOfficeCacheHeadersMiddleware>();
