@@ -530,6 +530,9 @@ public abstract class SqlSyntaxProviderBase<TSyntax> : ISqlSyntaxProvider
     /// <returns><c>true</c> if clustered indexes are supported; otherwise, <c>false</c>.</returns>
     public virtual bool SupportsClustered() => true;
 
+    /// <inheritdoc />
+    public virtual bool SupportsTransactionalDdl => true;
+
     /// <summary>
     /// Determines whether identity insert is supported by the SQL syntax provider.
     /// </summary>
@@ -628,7 +631,7 @@ public abstract class SqlSyntaxProviderBase<TSyntax> : ISqlSyntaxProvider
         return string.Format(
             CreateForeignKeyConstraint,
             GetQuotedTableName(foreignKey.ForeignTable),
-            GetQuotedName(constraintName),
+            GetQuotedName(TruncateConstraintName<ForeignKeyDefinition>(constraintName)),
             GetQuotedColumnName(foreignKey.ForeignColumns.First()),
             GetQuotedTableName(foreignKey.PrimaryTable),
             GetQuotedColumnName(foreignKey.PrimaryColumns.First()),

@@ -33,15 +33,17 @@ namespace Umbraco.Cms.Persistence.EFCore;
 /// </remarks>
 public class UmbracoDbContext : DbContext
 {
+    private readonly IMigrationProviderSetup? _migrationProvider;
+
     /// <summary>
     /// Initializes a new instance of the <see cref="UmbracoDbContext"/> class.
     /// </summary>
     /// <param name="options">The options to be used by the DbContext.</param>
     public UmbracoDbContext(DbContextOptions<UmbracoDbContext> options)
-        : base(ConfigureOptions(options))
-    { }
+        : base(ConfigureOptions(options, out var migrationProvider))
+        => _migrationProvider = migrationProvider;
 
-    private static DbContextOptions<UmbracoDbContext> ConfigureOptions(DbContextOptions<UmbracoDbContext> options)
+    private static DbContextOptions<UmbracoDbContext> ConfigureOptions(DbContextOptions<UmbracoDbContext> options, out IMigrationProviderSetup? migrationProvider)
     {
         var extensions = options.Extensions.FirstOrDefault() as Microsoft.EntityFrameworkCore.Infrastructure.CoreOptionsExtension;
         IServiceProvider? serviceProvider = extensions?.ApplicationServiceProvider;
@@ -67,7 +69,7 @@ public class UmbracoDbContext : DbContext
         }
 
         IEnumerable<IMigrationProviderSetup>? migrationProviders = serviceProvider?.GetServices<IMigrationProviderSetup>();
-        IMigrationProviderSetup? migrationProvider = migrationProviders?.FirstOrDefault(x => x.ProviderName.CompareProviderNames(connectionStrings.ProviderName));
+        migrationProvider = migrationProviders?.FirstOrDefault(x => x.ProviderName.CompareProviderNames(connectionStrings.ProviderName));
 
         if (migrationProvider == null && connectionStrings.ProviderName != null)
         {
@@ -88,5 +90,7 @@ public class UmbracoDbContext : DbContext
         {
             entity.SetTableName(Core.Constants.DatabaseSchema.TableNamePrefix + entity.GetTableName());
         }
+
+        _migrationProvider?.ConfigureModel(modelBuilder);
     }
 }

@@ -16,6 +16,9 @@ namespace Umbraco.Cms.Infrastructure.Persistence.SqlSyntax;
 /// </summary>
 public interface ISqlSyntaxProvider
 {
+    /// <summary>Gets a value indicating whether schema changes participate in the current transaction.</summary>
+    bool SupportsTransactionalDdl => true;
+
     /// <summary>
     /// Gets the SQL syntax expression used to calculate the length of a string in the current SQL dialect.
     /// </summary>

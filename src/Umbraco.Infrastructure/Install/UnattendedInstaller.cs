@@ -137,7 +137,7 @@ public class UnattendedInstaller : INotificationAsyncHandler<RuntimeUnattendedIn
 
                 database.BeginTransaction();
                 DatabaseSchemaCreator creator = _databaseSchemaCreatorFactory.Create(database);
-                creator.InitializeDatabaseSchema();
+                creator.InitializeDatabaseSchema(_databaseFactory);
                 database.CompleteTransaction();
                 _logger.LogInformation("Unattended install completed.");
 

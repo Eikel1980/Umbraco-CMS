@@ -18,4 +18,7 @@ public interface IMigrationProviderSetup
     /// <param name="builder">The DbContext options builder to configure.</param>
     /// <param name="connectionString">The connection string to use.</param>
     void Setup(DbContextOptionsBuilder builder, string? connectionString);
+
+    /// <summary>Applies provider-specific mappings to the Umbraco model.</summary>
+    void ConfigureModel(ModelBuilder builder) { }
 }
