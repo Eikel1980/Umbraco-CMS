@@ -1,0 +1,48 @@
+name: MariaDB provider
+
+on:
+  push:
+    branches: [v19/feature/mariadb-provider]
+  pull_request:
+    paths:
+      - 'src/Umbraco.Cms.Persistence*/**'
+      - 'src/Umbraco.Infrastructure/**'
+      - 'tools/MariaDbValidation/**'
+      - 'Directory.Packages.props'
+      - '.github/workflows/mariadb-provider.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      mariadb:
+        image: mariadb:11.8
+        ports:
+          - 127.0.0.1:3306:3306
+        env:
+          MARIADB_RANDOM_ROOT_PASSWORD: '1'
+          MARIADB_DATABASE: umbracomariadblab
+          MARIADB_USER: umbraco_lab
+          MARIADB_PASSWORD: disposable-probe
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=5s --health-timeout=5s --health-retries=20
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-dotnet@v5
+        with:
+          global-json-file: global.json
+      - run: dotnet build tools/MariaDbValidation
+      - name: Check locking, transactions and OpenIddict cleanup
+        env:
+          MARIADB_PROBE_PASSWORD: disposable-probe
+        run: |
+          dotnet run --no-build --project tools/MariaDbValidation
+          dotnet run --no-build --project tools/MariaDbValidation -- --cleanup

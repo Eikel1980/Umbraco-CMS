@@ -205,6 +205,9 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Umbraco.PublishedCache.HybridCache.Bounded", "src\Umbraco.PublishedCache.HybridCache.Bounded\Umbraco.PublishedCache.HybridCache.Bounded.csproj", "{0A00AC20-8CB8-4E93-AB84-B1851095AEC2}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Umbraco.Cms.Search.Extension.FileToText", "src\Umbraco.Cms.Search.Extension.FileToText\Umbraco.Cms.Search.Extension.FileToText.csproj", "{02173D97-0519-474E-9511-A74FB245A19F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Umbraco.Cms.Persistence.EFCore.MariaDb", "src\Umbraco.Cms.Persistence.EFCore.MariaDb\Umbraco.Cms.Persistence.EFCore.MariaDb.csproj", "{1E6DB9E6-7F64-4D77-AAEA-03663BDA50A6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Umbraco.Cms.Persistence.MariaDb", "src\Umbraco.Cms.Persistence.MariaDb\Umbraco.Cms.Persistence.MariaDb.csproj", "{CD331EE4-1104-4C9C-AEFC-10961DBFB5C7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -806,6 +809,42 @@ Global
 		{02173D97-0519-474E-9511-A74FB245A19F}.SkipTests|x64.Build.0 = Debug|Any CPU
 		{02173D97-0519-474E-9511-A74FB245A19F}.SkipTests|x86.ActiveCfg = Debug|Any CPU
 		{02173D97-0519-474E-9511-A74FB245A19F}.SkipTests|x86.Build.0 = Debug|Any CPU
+		{1E6DB9E6-7F64-4D77-AAEA-03663BDA50A6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1E6DB9E6-7F64-4D77-AAEA-03663BDA50A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1E6DB9E6-7F64-4D77-AAEA-03663BDA50A6}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{1E6DB9E6-7F64-4D77-AAEA-03663BDA50A6}.Debug|x64.Build.0 = Debug|Any CPU
+		{1E6DB9E6-7F64-4D77-AAEA-03663BDA50A6}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{1E6DB9E6-7F64-4D77-AAEA-03663BDA50A6}.Debug|x86.Build.0 = Debug|Any CPU
+		{1E6DB9E6-7F64-4D77-AAEA-03663BDA50A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1E6DB9E6-7F64-4D77-AAEA-03663BDA50A6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1E6DB9E6-7F64-4D77-AAEA-03663BDA50A6}.Release|x64.ActiveCfg = Release|Any CPU
+		{1E6DB9E6-7F64-4D77-AAEA-03663BDA50A6}.Release|x64.Build.0 = Release|Any CPU
+		{1E6DB9E6-7F64-4D77-AAEA-03663BDA50A6}.Release|x86.ActiveCfg = Release|Any CPU
+		{1E6DB9E6-7F64-4D77-AAEA-03663BDA50A6}.Release|x86.Build.0 = Release|Any CPU
+		{1E6DB9E6-7F64-4D77-AAEA-03663BDA50A6}.SkipTests|Any CPU.ActiveCfg = Debug|Any CPU
+		{1E6DB9E6-7F64-4D77-AAEA-03663BDA50A6}.SkipTests|Any CPU.Build.0 = Debug|Any CPU
+		{1E6DB9E6-7F64-4D77-AAEA-03663BDA50A6}.SkipTests|x64.ActiveCfg = Debug|Any CPU
+		{1E6DB9E6-7F64-4D77-AAEA-03663BDA50A6}.SkipTests|x64.Build.0 = Debug|Any CPU
+		{1E6DB9E6-7F64-4D77-AAEA-03663BDA50A6}.SkipTests|x86.ActiveCfg = Debug|Any CPU
+		{1E6DB9E6-7F64-4D77-AAEA-03663BDA50A6}.SkipTests|x86.Build.0 = Debug|Any CPU
+		{CD331EE4-1104-4C9C-AEFC-10961DBFB5C7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CD331EE4-1104-4C9C-AEFC-10961DBFB5C7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CD331EE4-1104-4C9C-AEFC-10961DBFB5C7}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{CD331EE4-1104-4C9C-AEFC-10961DBFB5C7}.Debug|x64.Build.0 = Debug|Any CPU
+		{CD331EE4-1104-4C9C-AEFC-10961DBFB5C7}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{CD331EE4-1104-4C9C-AEFC-10961DBFB5C7}.Debug|x86.Build.0 = Debug|Any CPU
+		{CD331EE4-1104-4C9C-AEFC-10961DBFB5C7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CD331EE4-1104-4C9C-AEFC-10961DBFB5C7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CD331EE4-1104-4C9C-AEFC-10961DBFB5C7}.Release|x64.ActiveCfg = Release|Any CPU
+		{CD331EE4-1104-4C9C-AEFC-10961DBFB5C7}.Release|x64.Build.0 = Release|Any CPU
+		{CD331EE4-1104-4C9C-AEFC-10961DBFB5C7}.Release|x86.ActiveCfg = Release|Any CPU
+		{CD331EE4-1104-4C9C-AEFC-10961DBFB5C7}.Release|x86.Build.0 = Release|Any CPU
+		{CD331EE4-1104-4C9C-AEFC-10961DBFB5C7}.SkipTests|Any CPU.ActiveCfg = Debug|Any CPU
+		{CD331EE4-1104-4C9C-AEFC-10961DBFB5C7}.SkipTests|Any CPU.Build.0 = Debug|Any CPU
+		{CD331EE4-1104-4C9C-AEFC-10961DBFB5C7}.SkipTests|x64.ActiveCfg = Debug|Any CPU
+		{CD331EE4-1104-4C9C-AEFC-10961DBFB5C7}.SkipTests|x64.Build.0 = Debug|Any CPU
+		{CD331EE4-1104-4C9C-AEFC-10961DBFB5C7}.SkipTests|x86.ActiveCfg = Debug|Any CPU
+		{CD331EE4-1104-4C9C-AEFC-10961DBFB5C7}.SkipTests|x86.Build.0 = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

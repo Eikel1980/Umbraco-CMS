@@ -178,7 +178,9 @@ public class DatabaseSchemaCreator
     ///     Initializes the database by creating the umbraco db schema.
     /// </summary>
     /// <remarks>This needs to execute as part of a transaction.</remarks>
-    public void InitializeDatabaseSchema()
+    public void InitializeDatabaseSchema() => InitializeDatabaseSchema(null);
+
+    internal void InitializeDatabaseSchema(IUmbracoDatabaseFactory? databaseFactory)
     {
         if (!_database.InTransaction)
         {
@@ -196,15 +198,50 @@ public class DatabaseSchemaCreator
                 _loggerFactory.CreateLogger<DatabaseDataCreator>(),
                 _umbracoVersion,
                 _installDefaultDataSettings);
-            foreach (Type table in _orderedTables)
+            if (SqlSyntax.SupportsTransactionalDdl)
             {
-                CreateTable(false, table, dataCreation);
+                foreach (Type table in _orderedTables)
+                {
+                    CreateTable(false, table, dataCreation);
+                }
+            }
+            else
+            {
+                ArgumentNullException.ThrowIfNull(databaseFactory);
+                using IUmbracoDatabase schemaDatabase = databaseFactory.CreateDatabase();
+                CreateSchemaOutsideSeedTransaction(schemaDatabase, dataCreation);
             }
         }
 
         DatabaseSchemaCreatedNotification createdNotification =
             new DatabaseSchemaCreatedNotification(eventMessages).WithStateFrom(creatingNotification);
         FireAfterCreation(createdNotification);
+    }
+
+    private void CreateSchemaOutsideSeedTransaction(IUmbracoDatabase schemaDatabase, DatabaseDataCreator dataCreation)
+    {
+        TableDefinition[] tables = _orderedTables.Select(type => DefinitionFactory.GetTableDefinition(type, SqlSyntax)).ToArray();
+        var existing = SqlSyntax.GetTablesInSchema(schemaDatabase).ToHashSet(StringComparer.OrdinalIgnoreCase);
+        if (tables.Any(table => existing.Contains(table.Name!)))
+        {
+            throw new InvalidOperationException("The database already contains Umbraco tables. Use an empty database for a fresh install.");
+        }
+
+        foreach (TableDefinition table in tables)
+        {
+            SqlSyntax.HandleCreateTable(schemaDatabase, table, skipKeysAndIndexes: true);
+        }
+
+        foreach (string statement in tables.SelectMany(table => SqlSyntax.Format(table.Indexes))
+                     .Concat(tables.SelectMany(table => SqlSyntax.Format(table.ForeignKeys))))
+        {
+            schemaDatabase.Execute(statement);
+        }
+
+        foreach (TableDefinition table in tables)
+        {
+            dataCreation.InitializeBaseData(table.Name!);
+        }
     }
 
     /// <summary>

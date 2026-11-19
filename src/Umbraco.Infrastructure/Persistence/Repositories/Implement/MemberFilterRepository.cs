@@ -174,7 +174,7 @@ internal sealed class MemberFilterRepository : IMemberFilterRepository
                 m.{QCol("lastLoginDate")},
                 m.{QCol("lastLockoutDate")},
                 m.{QCol("lastPasswordChangeDate")},
-                CAST(0 AS bit) AS {QName("isExternalOnly")},
+                {SqlSyntax.ConvertIntegerToBoolean(0)} AS {QName("isExternalOnly")},
                 ctn.{QCol("uniqueId")} AS {QName("memberTypeKey")},
                 ctn.{QCol("text")} AS {QName("memberTypeName")},
                 ctd.{QCol("icon")} AS {QName("memberTypeIcon")}
@@ -219,7 +219,7 @@ internal sealed class MemberFilterRepository : IMemberFilterRepository
                 em.{QCol("lastLoginDate")},
                 em.{QCol("lastLockoutDate")},
                 NULL AS {QName("lastPasswordChangeDate")},
-                CAST(1 AS bit) AS {QName("isExternalOnly")},
+                {SqlSyntax.ConvertIntegerToBoolean(1)} AS {QName("isExternalOnly")},
                 NULL AS {QName("memberTypeKey")},
                 NULL AS {QName("memberTypeName")},
                 NULL AS {QName("memberTypeIcon")}

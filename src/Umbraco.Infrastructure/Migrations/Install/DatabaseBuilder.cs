@@ -347,8 +347,8 @@ namespace Umbraco.Cms.Infrastructure.Migrations.Install
                 if (result?.Success is true)
                 {
                     scope.Notifications.Publish(new DatabaseSchemaAndDataCreatedNotification(result!.RequiresUpgrade));
+                    scope.Complete();
                 }
-                scope.Complete();
                 return result;
             }
         }
@@ -369,8 +369,9 @@ namespace Umbraco.Cms.Infrastructure.Migrations.Install
 
                 var message = string.Empty;
 
-                DatabaseSchemaResult? schemaResult = ValidateSchema();
-                var hasInstalledVersion = schemaResult?.DetermineHasInstalledVersion() ?? false;
+                var hasInstalledVersion = database?.SqlContext.SqlSyntax.SupportsTransactionalDdl == false
+                    ? database.IsUmbracoInstalled()
+                    : ValidateSchema()?.DetermineHasInstalledVersion() ?? false;
 
                 //If the determined version is "empty" its a new install - otherwise upgrade the existing
                 if (!hasInstalledVersion)
@@ -381,7 +382,7 @@ namespace Umbraco.Cms.Infrastructure.Migrations.Install
                     }
 
                     DatabaseSchemaCreator creator = _databaseSchemaCreatorFactory.Create(database);
-                    creator.InitializeDatabaseSchema();
+                    creator.InitializeDatabaseSchema(_databaseFactory);
 
                     message += "<p>Installation completed!</p>";
 

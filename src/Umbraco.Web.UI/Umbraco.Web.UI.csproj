@@ -27,6 +27,8 @@
   <ItemGroup>
     <ProjectReference Include="..\Umbraco.Cms.DevelopmentMode.Backoffice\Umbraco.Cms.DevelopmentMode.Backoffice.csproj" />
     <ProjectReference Include="..\Umbraco.Cms\Umbraco.Cms.csproj" />
+    <ProjectReference Include="..\Umbraco.Cms.Persistence.MariaDb\Umbraco.Cms.Persistence.MariaDb.csproj" />
+    <ProjectReference Include="..\Umbraco.Cms.Persistence.EFCore.MariaDb\Umbraco.Cms.Persistence.EFCore.MariaDb.csproj" />
   </ItemGroup>
 
   <ItemGroup>

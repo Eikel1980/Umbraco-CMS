@@ -3,7 +3,9 @@ using System.Data.Common;
 using System.Text;
 using Microsoft.Extensions.Logging;
 using NPoco;
+using Umbraco.Cms.Core;
 using Umbraco.Cms.Infrastructure.Migrations.Install;
+using Umbraco.Cms.Infrastructure.Persistence.Dtos;
 using Umbraco.Extensions;
 
 namespace Umbraco.Cms.Infrastructure.Persistence;
@@ -231,7 +233,19 @@ public class UmbracoDatabase : Database, IUmbracoDatabase
     /// Determines whether the required Umbraco database tables are present, indicating that Umbraco is installed.
     /// </summary>
     /// <returns>True if the Umbraco database tables are detected to be installed; otherwise, false.</returns>
-    public bool IsUmbracoInstalled() => ValidateSchema().DetermineHasInstalledVersion();
+    public bool IsUmbracoInstalled()
+    {
+        if (SqlContext.SqlSyntax.SupportsTransactionalDdl)
+        {
+            return ValidateSchema().DetermineHasInstalledVersion();
+        }
+
+        // DDL may have committed before the install transaction finished seeding the database.
+        const string prefix = Constants.Conventions.Migrations.KeyValuePrefix;
+        return SqlContext.SqlSyntax.GetTablesInSchema(this).Contains(KeyValueDto.TableName, StringComparer.OrdinalIgnoreCase)
+            && this.GetFromKeyValueTable(prefix)?.TryGetValue(prefix + Constants.Conventions.Migrations.UmbracoUpgradePlanName, out var state) == true
+            && !string.IsNullOrEmpty(state);
+    }
 
     #endregion
 
