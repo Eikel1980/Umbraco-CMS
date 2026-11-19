@@ -7,7 +7,8 @@ import type { UmbElement } from '@umbraco-cms/backoffice/element-api';
 import { UmbControllerBase } from '@umbraco-cms/backoffice/class-api';
 import { UUIIconRegistryEssential } from '@umbraco-cms/backoffice/external/uui';
 import { UmbServerConnection, UmbServerContext } from '@umbraco-cms/backoffice/server';
-import { firstValueFrom } from '@umbraco-cms/backoffice/external/rxjs';
+import { umbHttpClient } from '@umbraco-cms/backoffice/http-client';
+import { loginServerUrl } from '../server-url.js';
 
 // We import what we need from the Backoffice app.
 // In the future the login screen app will be a part of the Backoffice app, and we will not need to import these.
@@ -23,7 +24,7 @@ export class UmbSlimBackofficeController extends UmbControllerBase {
 
 		// Register the Backoffice's built-in localization manifests so that the login screen
 		// can resolve canonical 'login_*' keys (greeting, signInWith, etc.) directly from the
-		// shared backoffice dictionaries — no parallel maintenance in this project. See #56402.
+		// shared backoffice dictionaries - no parallel maintenance in this project. See #56402.
 		umbExtensionsRegistry.registerMany(umbLocalizationManifests);
 
 		new UmbBundleExtensionInitializer(host, umbExtensionsRegistry);
@@ -38,13 +39,14 @@ export class UmbSlimBackofficeController extends UmbControllerBase {
 
 	async register(host: UmbElement) {
 		// Get the server URL and backoffice path from the host.
-		const serverUrl = window.location.origin;
+		const serverUrl = loginServerUrl;
+		umbHttpClient.setConfig({ baseUrl: serverUrl });
 		const serverConnection = new UmbServerConnection(host, serverUrl);
 
 		// Create the server context for the slim backoffice.
 		// This is needed by the UmbServerExtensionRegistrator to register the extensions.
 		new UmbServerContext(this, {
-			backofficePath: '/umbraco',
+			backofficePath: new URL(serverUrl + '/umbraco').pathname,
 			serverUrl,
 			serverConnection: serverConnection,
 		});

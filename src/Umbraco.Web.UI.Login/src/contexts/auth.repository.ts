@@ -1,3 +1,4 @@
+import { loginServerUrl } from '../server-url.js';
 import {
 	LoginRequestModel,
 	LoginResponse,
@@ -18,7 +19,7 @@ export class UmbAuthRepository extends UmbRepositoryBase {
 
 	public async login(data: LoginRequestModel): Promise<LoginResponse> {
 		try {
-			const request = new Request('/umbraco/management/api/v1/security/back-office/login', {
+			const request = new Request(`${loginServerUrl}/umbraco/management/api/v1/security/back-office/login`, {
 				method: 'POST',
 				body: JSON.stringify({
 					username: data.username,
@@ -64,7 +65,7 @@ export class UmbAuthRepository extends UmbRepositoryBase {
 
 	public async validateMfaCode(code: string, provider: string): Promise<MfaCodeResponse> {
 		try {
-			const requestData = new Request('/umbraco/management/api/v1/security/back-office/verify-2fa', {
+			const requestData = new Request(`${loginServerUrl}/umbraco/management/api/v1/security/back-office/verify-2fa`, {
 				method: 'POST',
 				body: JSON.stringify({
 					code,
@@ -101,7 +102,7 @@ export class UmbAuthRepository extends UmbRepositoryBase {
 	 */
 	public async fetchPendingTwoFactorInfo(): Promise<PendingTwoFactorResponse | undefined> {
 		try {
-			const response = await fetch('/umbraco/management/api/v1/security/back-office/pending-2fa', {
+			const response = await fetch(`${loginServerUrl}/umbraco/management/api/v1/security/back-office/pending-2fa`, {
 				headers: {
 					Accept: 'application/json',
 				},

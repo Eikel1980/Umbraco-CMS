@@ -26,9 +26,11 @@
 @{
     bool.TryParse(Context.Request.Query["umbDebug"], out var isDebug);
     var backOfficePath = HostingEnvironment.GetBackOfficePath();
-    var loginLogoImage = Url.RouteUrl(BackOfficeGraphicsController.LoginLogoRouteName, new {Version= "1"});
-    var loginLogoImageAlternative = Url.RouteUrl(BackOfficeGraphicsController.LoginLogoAlternativeRouteName, new {Version= "1"});
-    var loginBackgroundImage = Url.RouteUrl(BackOfficeGraphicsController.LoginBackGroundRouteName, new {Version= "1"});
+    var mountPath = HostingEnvironment.ApplicationVirtualPath.TrimEnd('/');
+    string? PublicRoute(string? path) => path is null || Context.Request.PathBase.HasValue ? path : mountPath + path;
+    var loginLogoImage = PublicRoute(Url.RouteUrl(BackOfficeGraphicsController.LoginLogoRouteName, new {Version= "1"}));
+    var loginLogoImageAlternative = PublicRoute(Url.RouteUrl(BackOfficeGraphicsController.LoginLogoAlternativeRouteName, new {Version= "1"}));
+    var loginBackgroundImage = PublicRoute(Url.RouteUrl(BackOfficeGraphicsController.LoginBackGroundRouteName, new {Version= "1"}));
     var usernameIsEmail = SecuritySettings.Value.UsernameIsEmail;
     var allowUserInvite = EmailSender.IsEmailConfigured();
     var allowPasswordReset = ForgotPasswordSender.IsPasswordResetConfigured();
@@ -36,26 +38,29 @@
 
     // Where to send the user after login: the path they came from (client-supplied, validated local
     // by the controller) when present, otherwise the configured back-office path
-    // (CallbackPathName — e.g. "/" when the client is served at the root of a separate host).
+    // (CallbackPathName - e.g. "/" when the client is served at the root of a separate host).
     // The login app resolves this path against back-office-host below, so a configured BackOfficeHost
     // (dev server / Umbraco Cloud) returns the user to the client host, not this backend's origin.
     var backOfficeHostOrigin = SecuritySettings.Value.BackOfficeHost?.GetLeftPart(UriPartial.Authority);
-    var returnPath = string.IsNullOrEmpty(Model.ReturnUrl) ? SecuritySettings.Value.CallbackPathName : Model.ReturnUrl;
+    var fallbackPath = backOfficeHostOrigin is null && SecuritySettings.Value.CallbackPathName == "/umbraco"
+        ? backOfficePath
+        : SecuritySettings.Value.CallbackPathName;
+    var returnPath = string.IsNullOrEmpty(Model.ReturnUrl) ? fallbackPath : Model.ReturnUrl;
 }
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-application-path="@mountPath">
 <head>
     <meta charset="UTF-8"/>
     <base href="@backOfficePath.EnsureEndsWith('/')" />
-    <link rel="icon" type="image/svg+xml" href="~/umbraco/login/favicon.svg"/>
+    <link rel="icon" type="image/svg+xml" href="@backOfficePath/login/favicon.svg"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <meta name="mobile-web-app-capable" content="yes"/>
     <meta name="robots" content="noindex, nofollow"/>
     <meta name="pinterest" content="nopin"/>
     <title>Umbraco</title>
 
-    <link rel="stylesheet" href="~/umbraco/backoffice/css/light.css" asp-append-version="true" />
+    <link rel="stylesheet" href="@BackOfficePathGenerator.BackOfficeAssetsPath/css/light.css" />
     <style>
       body {
         margin: 0;
@@ -65,7 +70,7 @@
     </style>
 
     @await Html.BackOfficeImportMapScriptAsync(JsonSerializer, BackOfficePathGenerator, PackageManifestService, CspNonceService)
-    <script type="module" src="~/umbraco/login/login.js" asp-append-version="true" asp-csp-nonce></script>
+    <script type="module" src="@backOfficePath/login/login.js?v=@BackOfficePathGenerator.BackOfficeCacheBustHash" asp-csp-nonce></script>
 </head>
 
 <body class="uui-font uui-text" style="margin: 0; padding: 0; overflow: hidden">
