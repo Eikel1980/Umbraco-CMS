@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <PackageValidationBaselineVersion />
+    <Title>Umbraco CMS - Persistence - Entity Framework Core - MariaDB migrations</Title>
+    <Description>Adds support for Entity Framework Core MariaDB migrations to Umbraco CMS.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microting.EntityFrameworkCore.MySql" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Umbraco.Cms.Persistence.EFCore\Umbraco.Cms.Persistence.EFCore.csproj" />
+  </ItemGroup>
+</Project>

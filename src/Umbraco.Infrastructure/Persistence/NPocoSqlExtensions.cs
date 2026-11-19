@@ -818,7 +818,7 @@ namespace Umbraco.Extensions
             ArgumentNullException.ThrowIfNull(sql);
             ArgumentNullException.ThrowIfNull(field);
 
-            return sql.Select($"MAX ({sql.SqlContext.SqlSyntax.GetFieldName(field)})");
+            return sql.Select($"MAX({sql.SqlContext.SqlSyntax.GetFieldName(field)})");
         }
 
         /// <summary>
@@ -838,7 +838,7 @@ namespace Umbraco.Extensions
             ArgumentNullException.ThrowIfNull(sql);
             ArgumentNullException.ThrowIfNull(field);
 
-            return sql.Select($"COALESCE(MAX ({sql.SqlContext.SqlSyntax.GetFieldName(field)}), {coalesceValue})");
+            return sql.Select($"COALESCE(MAX({sql.SqlContext.SqlSyntax.GetFieldName(field)}), {coalesceValue})");
         }
 
         /// <summary>
@@ -857,7 +857,7 @@ namespace Umbraco.Extensions
             ArgumentNullException.ThrowIfNull(sql);
             ArgumentNullException.ThrowIfNull(field);
 
-            return sql.Select($"SUM ({sql.SqlContext.SqlSyntax.GetFieldName(field)})");
+            return sql.Select($"SUM({sql.SqlContext.SqlSyntax.GetFieldName(field)})");
         }
 
         /// <summary>
@@ -917,7 +917,7 @@ namespace Umbraco.Extensions
             var columns = fields.Length == 0
                 ? sql.GetColumns<TDto>(withAlias: false)
                 : fields.Select(x => sqlSyntax.GetFieldName(x)).ToArray();
-            var text = "COUNT (" + string.Join(", ", columns) + ")";
+            var text = "COUNT(" + string.Join(", ", columns) + ")";
             if (alias != null)
             {
                 text += " AS " + sqlSyntax.GetQuotedColumnName(alias);
@@ -1180,7 +1180,7 @@ namespace Umbraco.Extensions
             var columns = fields.Length == 0
                 ? sql.GetColumns<TDto>(withAlias: false)
                 : fields.Select(x => sqlSyntax.GetFieldName(x)).ToArray();
-            var text = ", COUNT (" + string.Join(", ", columns) + ")";
+            var text = ", COUNT(" + string.Join(", ", columns) + ")";
             if (alias != null)
             {
                 text += " AS " + sql.SqlContext.SqlSyntax.GetQuotedColumnName(alias);
