@@ -49,6 +49,13 @@ public class MariaDbSyntaxProvider : SqlSyntaxProviderBase<MariaDbSyntaxProvider
     public override string Length => "CHAR_LENGTH";
 
     /// <inheritdoc />
+    public override string GetLikeEscapeClause() => "ESCAPE '!'";
+
+    /// <inheritdoc />
+    public override string EscapeLikeValue(string value)
+        => value.Replace("!", "!!").Replace("%", "!%").Replace("_", "!_");
+
+    /// <inheritdoc />
     public override string AlterColumn => "ALTER TABLE {0} MODIFY COLUMN {1}";
 
     /// <inheritdoc />

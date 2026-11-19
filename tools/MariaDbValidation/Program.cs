@@ -69,6 +69,17 @@ UmbracoDatabase OpenSession()
 
 using var first = OpenSession();
 using var second = OpenSession();
+var syntax = sql.SqlSyntax;
+const string prefix = @"Umbraco!%_\";
+string pattern = syntax.EscapeLikeValue(prefix) + syntax.GetWildcardPlaceholder();
+string comparison = $"SELECT @0 LIKE @1 {syntax.GetLikeEscapeClause()}";
+if (!first.ExecuteScalar<bool>(comparison, prefix + "State", pattern)
+    || first.ExecuteScalar<bool>(comparison, @"Umbraco!other_\State", pattern)
+    || first.ExecuteScalar<bool>(comparison, @"Umbraco!%X\State", pattern))
+{
+    throw new InvalidOperationException("Expected a literal key prefix followed by a wildcard.");
+}
+
 if (first.ExecuteScalar<long>("SELECT CONNECTION_ID()") == second.ExecuteScalar<long>("SELECT CONNECTION_ID()"))
 {
     throw new InvalidOperationException("Expected independent MariaDB connections.");
