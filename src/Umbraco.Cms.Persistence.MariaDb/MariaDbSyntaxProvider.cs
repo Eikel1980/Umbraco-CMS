@@ -21,6 +21,13 @@ public class MariaDbSyntaxProvider : SqlSyntaxProviderBase<MariaDbSyntaxProvider
     /// <summary>The configured ADO.NET provider invariant name.</summary>
     public const string InvariantName = "MySqlConnector";
 
+    /// <summary>
+    /// The collation for databases this provider creates: case-insensitive like SQL Server's default,
+    /// but accent-sensitive, so values such as "cafe" and "café" stay distinct in unique indexes.
+    /// Requires MariaDB 10.10 or later.
+    /// </summary>
+    public const string DefaultCollation = "utf8mb4_uca1400_as_ci";
+
     private const char IdentifierQuote = '\u0060';
 
     /// <summary>Initializes the MariaDB column type mappings.</summary>
@@ -95,7 +102,10 @@ public class MariaDbSyntaxProvider : SqlSyntaxProviderBase<MariaDbSyntaxProvider
     }
 
     /// <inheritdoc />
-    public override string GetQuotedName(string? name)
+    public override string GetQuotedName(string? name) => QuoteIdentifier(name);
+
+    /// <summary>Quotes a MariaDB identifier, doubling any backtick inside it.</summary>
+    internal static string QuoteIdentifier(string? name)
     {
         string escaped = (name ?? string.Empty).Replace(IdentifierQuote.ToString(), new string(IdentifierQuote, 2));
         return $"{IdentifierQuote}{escaped}{IdentifierQuote}";

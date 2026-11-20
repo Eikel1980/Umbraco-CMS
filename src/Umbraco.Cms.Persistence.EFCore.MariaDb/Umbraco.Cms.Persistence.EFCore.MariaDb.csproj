@@ -7,9 +7,16 @@
 
   <ItemGroup>
     <PackageReference Include="Microting.EntityFrameworkCore.MySql" />
+    <PackageReference Include="MySqlConnector" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Umbraco.Cms.Persistence.EFCore\Umbraco.Cms.Persistence.EFCore.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+      <_Parameter1>Umbraco.Tests.UnitTests</_Parameter1>
+    </AssemblyAttribute>
   </ItemGroup>
 </Project>
