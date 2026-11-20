@@ -21,12 +21,30 @@ function Invoke-Step([string]$Name, [scriptblock]$Command, [switch]$WarnOnly) {
     if (-not $ok -and -not $WarnOnly) { throw "$Name failed with exit code $LASTEXITCODE." }
 }
 
+# Building Umbraco runs npm (package schema and backoffice), so make sure Node is on PATH for this session.
+function Find-NodeDirectory {
+    $onPath = Get-Command npm.cmd -ErrorAction SilentlyContinue
+    if ($onPath -and (Get-Command node.exe -ErrorAction SilentlyContinue)) { return $null }
+
+    $candidates = @(Get-Item "$env:ProgramFiles\Microsoft Visual Studio\*\*\MSBuild\Microsoft\VisualStudio\NodeJs\npm.cmd" -ErrorAction SilentlyContinue)
+    $runtime = Get-AppxPackage -Name '*CodexPrimaryRuntime*' -ErrorAction SilentlyContinue | Sort-Object Version -Descending | Select-Object -First 1
+    if ($runtime) { $candidates += @(Get-Item (Join-Path $runtime.InstallLocation 'dependencies\node\bin\npm.cmd') -ErrorAction SilentlyContinue) }
+
+    $found = $candidates | Where-Object { Test-Path (Join-Path $_.DirectoryName 'node.exe') } | Select-Object -First 1
+    if (-not $found) { throw 'npm was not found. Install Node.js 24 LTS from nodejs.org, open a new PowerShell window and rerun this script.' }
+    return $found.DirectoryName
+}
+
+$previousPath = $env:Path
+$nodeDirectory = Find-NodeDirectory
+if ($nodeDirectory) { $env:Path = "$nodeDirectory;$previousPath" }
+Write-Host "Using Node $(node --version) and npm $(npm --version)"
+
 $variables = 'MARIADB_PROBE_PASSWORD', 'MARIADB_PROBE_USER', 'MARIADB_PROBE_DATABASE'
 try {
     Invoke-Step 'Build MariaDB providers and probe' { dotnet build $probe -m:1 }
     Invoke-Step 'MariaDB unit tests' {
-        # The unit tests do not need the backoffice front end, so skip its npm build.
-        dotnet test (Join-Path $root 'tests\Umbraco.Tests.UnitTests') -p:UmbracoBuild=SkipFrontEnd --filter 'FullyQualifiedName~Umbraco.Cms.Persistence.MariaDb'
+        dotnet test (Join-Path $root 'tests\Umbraco.Tests.UnitTests') --filter 'FullyQualifiedName~Umbraco.Cms.Persistence.MariaDb'
     }
 
     $password = Read-Host "MariaDB password for $ProbeUser" -AsSecureString
@@ -44,6 +62,7 @@ try {
     }
 }
 finally {
+    $env:Path = $previousPath
     foreach ($name in $variables) { Remove-Item -LiteralPath "Env:$name" -ErrorAction SilentlyContinue }
     if ($password) { $password.Dispose() }
     Write-Host "`n== Summary" -ForegroundColor Cyan
