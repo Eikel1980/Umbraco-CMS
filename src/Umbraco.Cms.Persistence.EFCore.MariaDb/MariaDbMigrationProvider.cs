@@ -21,8 +21,11 @@ public class MariaDbMigrationProvider : IMigrationProvider
     public string ProviderName => MariaDbMigrationProviderSetup.DatabaseProviderName;
 
     /// <inheritdoc />
-    public Task MigrateAsync(EFCoreMigration migration) =>
-        throw new NotSupportedException($"MariaDB starts with OpenIddict 7 and has no historical migration for {migration}.");
+    /// <remarks>
+    /// MariaDB support starts after every historical Umbraco EF Core migration, so its migration set
+    /// is cumulative. Any requested migration is satisfied by applying all pending MariaDB migrations.
+    /// </remarks>
+    public Task MigrateAsync(EFCoreMigration migration) => MigrateAllAsync();
 
     /// <inheritdoc />
     public async Task MigrateAllAsync()

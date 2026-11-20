@@ -10,9 +10,9 @@ using Umbraco.Cms.Persistence.MariaDb;
 
 var connection = new MySqlConnectionStringBuilder
 {
-    Server = "127.0.0.1",
-    Database = "umbracomariadblab",
-    UserID = "umbraco_lab",
+    Server = Environment.GetEnvironmentVariable("MARIADB_PROBE_SERVER") ?? "127.0.0.1",
+    Database = Environment.GetEnvironmentVariable("MARIADB_PROBE_DATABASE") ?? "umbracomariadblab",
+    UserID = Environment.GetEnvironmentVariable("MARIADB_PROBE_USER") ?? "umbraco_lab",
     Pooling = false,
 };
 
@@ -48,6 +48,13 @@ else
 if (args is ["--cleanup"])
 {
     await CleanupProbe.RunAsync(connection.ConnectionString);
+    return;
+}
+
+if (args is ["--preflight"])
+{
+    // Read-only, so it is safe to point at a real Umbraco database with MARIADB_PROBE_DATABASE.
+    Environment.ExitCode = await PreflightProbe.RunAsync(connection.ConnectionString);
     return;
 }
 

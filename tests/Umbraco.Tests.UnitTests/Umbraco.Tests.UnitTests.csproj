@@ -51,6 +51,8 @@
     <ProjectReference Include="..\..\src\Umbraco.PublishedCache.HybridCache\Umbraco.PublishedCache.HybridCache.csproj" />
     <ProjectReference Include="..\..\src\Umbraco.PublishedCache.HybridCache.Bounded\Umbraco.PublishedCache.HybridCache.Bounded.csproj" />
     <ProjectReference Include="..\..\src\Umbraco.Cms.Search.Core\Umbraco.Cms.Search.Core.csproj" />
+    <ProjectReference Include="..\..\src\Umbraco.Cms.Persistence.MariaDb\Umbraco.Cms.Persistence.MariaDb.csproj" />
+    <ProjectReference Include="..\..\src\Umbraco.Cms.Persistence.EFCore.MariaDb\Umbraco.Cms.Persistence.EFCore.MariaDb.csproj" />
     <ProjectReference Include="..\Umbraco.Tests.Common\Umbraco.Tests.Common.csproj" />
   </ItemGroup>
 

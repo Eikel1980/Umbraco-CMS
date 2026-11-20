@@ -28,6 +28,7 @@ internal static class CleanupProbe
         using IServiceScope scope = provider.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<CleanupProbeContext>();
         var creator = db.GetService<IRelationalDatabaseCreator>();
+        string collationBefore = await GetDatabaseCollationAsync(connectionString);
         await creator.CreateTablesAsync();
         try
         {
@@ -79,7 +80,27 @@ internal static class CleanupProbe
                 command.CommandText = $"DROP TABLE `{table}`";
                 await command.ExecuteNonQueryAsync();
             }
+
+            // EF Core's CreateTables issues ALTER DATABASE CHARACTER SET for the model's character set, which
+            // resets the database collation to that character set's default. Put the probe database back.
+            string collationAfter = await GetDatabaseCollationAsync(connectionString);
+            if (!string.Equals(collationBefore, collationAfter, StringComparison.OrdinalIgnoreCase))
+            {
+                Console.WriteLine($"NOTE: EF Core changed the database collation from {collationBefore} to {collationAfter}; restoring it.");
+                using var restore = connection.CreateCommand();
+                restore.CommandText = $"ALTER DATABASE COLLATE {collationBefore}";
+                await restore.ExecuteNonQueryAsync();
+            }
         }
         Console.WriteLine("PASS: expired token and revoked authorization pruned; valid token and permanent authorization retained.");
+    }
+
+    private static async Task<string> GetDatabaseCollationAsync(string connectionString)
+    {
+        await using var connection = new MySqlConnection(connectionString);
+        await connection.OpenAsync();
+        await using MySqlCommand command = connection.CreateCommand();
+        command.CommandText = "SELECT DEFAULT_COLLATION_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = DATABASE()";
+        return (string)(await command.ExecuteScalarAsync())!;
     }
 }
