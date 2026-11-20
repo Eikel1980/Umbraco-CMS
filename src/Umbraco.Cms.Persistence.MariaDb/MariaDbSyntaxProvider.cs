@@ -213,7 +213,10 @@ public class MariaDbSyntaxProvider : SqlSyntaxProviderBase<MariaDbSyntaxProvider
 
         int seed = table.Columns.FirstOrDefault(column => column.IsIdentity)?.Seeding ?? 0;
         var options = seed > 1 ? FormattableString.Invariant($" AUTO_INCREMENT={seed}") : string.Empty;
-        return $"CREATE TABLE {GetQuotedTableName(table.Name)} ({columns}) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4{options}";
+        // No character set here: naming only a character set gives a table that character set's default
+        // collation, not the database's. Leaving both out makes every table inherit the database default,
+        // so tables created by later upgrades always match the ones created at install.
+        return $"CREATE TABLE {GetQuotedTableName(table.Name)} ({columns}) ENGINE=InnoDB{options}";
     }
 
     /// <inheritdoc />

@@ -57,7 +57,7 @@ public class MariaDbSyntaxProviderTests
     }
 
     [Test]
-    public void Creates_InnoDB_Tables_With_utf8mb4_And_The_Database_Collation()
+    public void Creates_InnoDB_Tables_That_Inherit_The_Database_Character_Set_And_Collation()
     {
         MariaDbSyntaxProvider sut = CreateSut();
 
@@ -67,9 +67,11 @@ public class MariaDbSyntaxProviderTests
             {
                 var sql = sut.Format(DefinitionFactory.GetTableDefinition(type, sut));
 
-                StringAssert.Contains("ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", sql);
+                StringAssert.Contains("ENGINE=InnoDB", sql);
 
-                // Tables inherit the database collation, so tables added by later upgrades match the existing ones.
+                // A character set without a collation would pick that character set's default collation
+                // instead of the database's, so neither may be named.
+                StringAssert.DoesNotContain("CHARSET", sql);
                 StringAssert.DoesNotContain("COLLATE", sql);
 
                 // MariaDB's NVARCHAR means utf8mb3, which cannot store emoji.
