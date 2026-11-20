@@ -205,7 +205,7 @@ export class UmbPreviewContext extends UmbContextBase {
 			throw new Error('No unique ID found in query string.');
 		}
 
-		const url = new URL(unique, host);
+		const url = new URL(unique, host.endsWith('/') ? host : `${host}/`);
 		const params = new URLSearchParams(url.search);
 
 		const culture = args && 'culture' in args ? args.culture : this.#culture.getValue();
