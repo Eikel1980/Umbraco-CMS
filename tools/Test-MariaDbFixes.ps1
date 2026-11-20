@@ -25,7 +25,8 @@ $variables = 'MARIADB_PROBE_PASSWORD', 'MARIADB_PROBE_USER', 'MARIADB_PROBE_DATA
 try {
     Invoke-Step 'Build MariaDB providers and probe' { dotnet build $probe -m:1 }
     Invoke-Step 'MariaDB unit tests' {
-        dotnet test (Join-Path $root 'tests\Umbraco.Tests.UnitTests') --filter 'FullyQualifiedName~Umbraco.Cms.Persistence.MariaDb'
+        # The unit tests do not need the backoffice front end, so skip its npm build.
+        dotnet test (Join-Path $root 'tests\Umbraco.Tests.UnitTests') -p:UmbracoBuild=SkipFrontEnd --filter 'FullyQualifiedName~Umbraco.Cms.Persistence.MariaDb'
     }
 
     $password = Read-Host "MariaDB password for $ProbeUser" -AsSecureString
