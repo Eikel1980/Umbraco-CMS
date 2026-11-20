@@ -8,6 +8,7 @@
 @using Umbraco.Cms.Web.Common.Hosting
 @using Umbraco.Extensions
 @inject IBackOfficePathGenerator BackOfficePathGenerator
+@inject Umbraco.Cms.Core.Hosting.IHostingEnvironment HostingEnvironment
 @inject IPackageManifestService PackageManifestService
 @inject IJsonSerializer JsonSerializer
 @inject IProfilerHtml ProfilerHtml
@@ -18,6 +19,8 @@
 @{
     bool.TryParse(Context.Request.Query["umbDebug"], out var isDebug);
     var backOfficePath = BackOfficePathGenerator.BackOfficePath;
+    var mountPath = HostingEnvironment.ApplicationVirtualPath.TrimEnd('/');
+    var serverUrl = mountPath.Length == 0 ? null : Microsoft.AspNetCore.Http.Extensions.UriHelper.BuildAbsolute(Context.Request.Scheme, Context.Request.Host, mountPath);
     var backOfficeAssetsPath = BackOfficePathGenerator.BackOfficeAssetsPath;
     var loginLogoImageAlternative = Url.RouteUrl(BackOfficeGraphicsController.LoginLogoAlternativeRouteName, new {Version= "1"});
 }<!doctype html>
@@ -61,7 +64,7 @@
         <p>Here are the <a href="https://www.enable-javascript.com/" target="_blank" rel="noopener" style="text-decoration: underline;">instructions how to enable JavaScript in your web browser</a>.</p>
     </div>
 </noscript>
-<umb-app lang="@GlobalSettings.Value.DefaultUILanguage" @(SecuritySettings.Value.KeepUserLoggedIn ? "keep-user-logged-in" : "")></umb-app>
+<umb-app server-url="@serverUrl" backoffice-path="@backOfficePath" lang="@GlobalSettings.Value.DefaultUILanguage" @(SecuritySettings.Value.KeepUserLoggedIn ? "keep-user-logged-in" : "")></umb-app>
 
 @if (isDebug)
 {
